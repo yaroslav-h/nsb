@@ -3,6 +3,8 @@ using Microsoft.Data.SqlClient;
 using System.IO;
 using System.Threading.Tasks;
 using NServiceBus;
+using NServiceBus.FluentValidation;
+using System.Reflection;
 
 public static class Program
 {
@@ -13,10 +15,31 @@ public static class Program
         #region ReceiverConfiguration
 
         var endpointConfiguration = new EndpointConfiguration("Samples.Sql.Receiver");
+
+        var recoverability = endpointConfiguration.Recoverability();
+        recoverability.Immediate(
+            immediate =>
+            {
+                //default is 5, immediate retries also can be disabled by setting to 0
+                immediate.NumberOfRetries(2);
+            });
+
+        //recoverability.Delayed(
+        //    delayed =>
+        //    {
+        //        //delayed retries also can be disabled by setting to 0
+        //        delayed.NumberOfRetries(2);
+        //        delayed.TimeIncrease(TimeSpan.FromMinutes(5));
+        //    });
+
+        endpointConfiguration
+            .UseFluentValidation(ValidatorLifecycle.Endpoint, true, false)
+            .AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
+
         endpointConfiguration.SendFailedMessagesTo("error");
         endpointConfiguration.AuditProcessedMessagesTo("audit");
         endpointConfiguration.EnableInstallers();
-        var connection = @"Data Source=192.168.21.214,1433;Database=NsbSamplesSql;User Id=sa;Password=Lineoftd1;Max Pool Size=100";
+        var connection = @"Data Source=127.0.0.1,1433;Database=NsbSamplesSql;User Id=sa;Password=Lineoftd1;Max Pool Size=100";
 
         var transport = endpointConfiguration.UseTransport<SqlServerTransport>();
         transport.ConnectionString(connection);

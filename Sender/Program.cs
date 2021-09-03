@@ -17,7 +17,7 @@ public static class Program
 
         #region SenderConfiguration
 
-        var connection = @"Data Source=192.168.21.214,1433;Database=NsbSamplesSql;User Id=sa;Password=Lineoftd1;Max Pool Size=100";
+        var connection = @"Data Source=127.0.0.1,1433;Database=NsbSamplesSql;User Id=sa;Password=Lineoftd1;Max Pool Size=100";
         var transport = endpointConfiguration.UseTransport<SqlServerTransport>();
         transport.ConnectionString(connection);
         transport.DefaultSchema("sender");
