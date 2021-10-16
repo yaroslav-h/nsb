@@ -5,21 +5,20 @@ using NServiceBus.Logging;
 
 namespace Raw
 {
-
-    public class OrderSubmittedHandler :
-        IHandleMessages<OrderSubmitted>
+    public class MessageSubmittedHandler :
+        IHandleMessages<SendSms>
     {
-        static ILog log = LogManager.GetLogger<OrderSubmittedHandler>();
+        static ILog log = LogManager.GetLogger<MessageSubmittedHandler>();
 
-        public async Task Handle(OrderSubmitted message, IMessageHandlerContext context)
+        public async Task Handle(SendSms message, IMessageHandlerContext context)
         {
-            log.Info($"Order {message.OrderId} worth {message.Value} persisted by raw sql");
+            log.Info($"Message {message.MessageId} worth {message.Value} persisted by raw sql");
 
             #region StoreDataRaw
 
             var session = context.SynchronizedStorageSession.SqlPersistenceSession();
 
-            var sql = @"insert into receiver.SubmittedOrder
+            var sql = @"insert into receiver.SubmittedMessage
                                     (Id, Value)
                         values      (@Id, @Value)";
             using (var command = new SqlCommand(
@@ -28,7 +27,7 @@ namespace Raw
                 transaction: (SqlTransaction) session.Transaction))
             {
                 var parameters = command.Parameters;
-                parameters.AddWithValue("Id", $"Raw-{message.OrderId}");
+                parameters.AddWithValue("Id", $"Raw-{message.MessageId}");
                 parameters.AddWithValue("Value", message.Value);
                 await command.ExecuteNonQueryAsync()
                     .ConfigureAwait(false);
@@ -37,5 +36,4 @@ namespace Raw
             #endregion
         }
     }
-
 }

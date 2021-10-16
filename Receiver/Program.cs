@@ -3,8 +3,6 @@ using Microsoft.Data.SqlClient;
 using System.IO;
 using System.Threading.Tasks;
 using NServiceBus;
-using NServiceBus.FluentValidation;
-using System.Reflection;
 
 public static class Program
 {
@@ -32,10 +30,6 @@ public static class Program
         //        delayed.TimeIncrease(TimeSpan.FromMinutes(5));
         //    });
 
-        endpointConfiguration
-            .UseFluentValidation(ValidatorLifecycle.Endpoint, true, false)
-            .AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
-
         endpointConfiguration.SendFailedMessagesTo("error");
         endpointConfiguration.AuditProcessedMessagesTo("audit");
         endpointConfiguration.EnableInstallers();
@@ -54,7 +48,7 @@ public static class Program
         subscriptions.SubscriptionTableName(tableName: "Subscriptions", schemaName: "dbo");
 
         var routing = transport.Routing();
-        routing.RouteToEndpoint(typeof(OrderAccepted), "Samples.Sql.Sender");
+        routing.RouteToEndpoint(typeof(SendNotificationResponse), "Samples.Sql.Sender");
 
         var persistence = endpointConfiguration.UsePersistence<SqlPersistence>();
         var dialect = persistence.SqlDialect<SqlDialect.MsSqlServer>();

@@ -50,14 +50,14 @@ public static class Program
                 break;
             }
 
-            var orderSubmitted = new OrderSubmitted
+            var submitMessage = new SendSmsNotification
             {
-                OrderId = Guid.NewGuid(),
+                MessageId = Guid.NewGuid(),
                 Value = random.Next(100)
             };
-            await endpointInstance.Publish(orderSubmitted)
+            await endpointInstance.Publish(submitMessage)
                 .ConfigureAwait(false);
-            Console.WriteLine("Published OrderSubmitted message");
+            Console.WriteLine("Published SubmitMessage message");
         }
         await endpointInstance.Stop()
             .ConfigureAwait(false);

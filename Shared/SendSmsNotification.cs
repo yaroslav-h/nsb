@@ -1,9 +1,9 @@
 ﻿using System;
 using NServiceBus;
 
-public class OrderSubmitted :
+public class SendSmsNotification :
     IEvent
 {
-    public Guid OrderId { get; set; }
+    public Guid MessageId { get; set; }
     public int Value { get; set; }
 }
