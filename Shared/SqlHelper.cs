@@ -2,32 +2,6 @@
 
 public static class SqlHelper
 {
-    public static void ExecuteSql(string connectionString, string sql)
-    {
-        EnsureDatabaseExists(connectionString);
-
-        using (var connection = new SqlConnection(connectionString))
-        {
-            connection.Open();
-
-            using (var command = connection.CreateCommand())
-            {
-                command.CommandText = sql;
-                command.ExecuteNonQuery();
-            }
-        }
-    }
-
-    public static void CreateSchema(string connectionString, string schema)
-    {
-        var sql = $@"
-if not exists (select  *
-               from    sys.schemas
-               where   name = N'{schema}')
-    exec('create schema {schema}');";
-        ExecuteSql(connectionString, sql);
-    }
-
     public static void EnsureDatabaseExists(string connectionString)
     {
         var builder = new SqlConnectionStringBuilder(connectionString);
@@ -42,9 +16,9 @@ if not exists (select  *
             using (var command = connection.CreateCommand())
             {
                 command.CommandText = $@"
-if(db_id('{database}') is null)
-    create database [{database}]
-";
+                    if(db_id('{database}') is null)
+                        create database [{database}]";
+
                 command.ExecuteNonQuery();
             }
         }

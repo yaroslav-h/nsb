@@ -1,28 +1,28 @@
 ﻿using System;
 using System.Threading.Tasks;
 using NServiceBus;
-using NServiceBus.Logging;
 
 public class SmsNotificationSaga :
     Saga<SmsNotificationSaga.SagaData>,
-    IAmStartedByMessages<SendSmsNotification>,
+    IAmStartedByMessages<PaymentMadeEvent>,
     IHandleMessages<SendNotificationResponse>
 {
-    static ILog log = LogManager.GetLogger<SmsNotificationSaga>();
 
     protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaData> mapper)
     {
-        mapper.ConfigureMapping<SendSmsNotification>(msg => msg.MessageId).ToSaga(saga => saga.MessageId);
+        mapper.ConfigureMapping<PaymentMadeEvent>(msg => msg.PaymentId).ToSaga(saga => saga.PaymentId);
     }
 
-    public async Task Handle(SendSmsNotification message, IMessageHandlerContext context)
+    public async Task Handle(PaymentMadeEvent message, IMessageHandlerContext context)
     {
-        Data.MessageId = message.MessageId;
+        Data.PaymentId = message.PaymentId;
+
+        //throw new ArgumentException("here we go");
 
         var messageSubmitted = new SendSms
         {
-            MessageId = message.MessageId,
-            Value = message.Value
+            PaymentId = message.PaymentId,
+            Amount = message.Amount
         };
 
         await context.SendLocal(messageSubmitted);
@@ -30,12 +30,12 @@ public class SmsNotificationSaga :
 
     public async Task Handle(SendNotificationResponse message, IMessageHandlerContext context)
     {
-        log.Info($"Message {message.MessageId} accepted.");
+        Console.WriteLine($"Payment notification with PaymentId: {message.PaymentId} accepted.");
     }
 
     public class SagaData :
         ContainSagaData
     {
-        public Guid MessageId { get; set; }
+        public int PaymentId { get; set; }
     }
 }

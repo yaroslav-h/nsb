@@ -8,7 +8,7 @@ public class SmsNotificationHandler :
     {
         var messageAccepted = new SendNotificationResponse
         {
-            MessageId = message.MessageId
+            PaymentId = message.PaymentId
         };
 
         return context.Reply(messageAccepted);

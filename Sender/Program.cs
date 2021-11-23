@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using NServiceBus;
+using Sender;
 
 public static class Program
 {
@@ -10,55 +11,31 @@ public static class Program
     {
         random = new Random();
 
-        Console.Title = "Samples.Sql.Sender";
-        var endpointConfiguration = new EndpointConfiguration("Samples.Sql.Sender");
-        endpointConfiguration.SendFailedMessagesTo("error");
-        endpointConfiguration.EnableInstallers();
-
-        #region SenderConfiguration
-
-        var connection = @"Data Source=127.0.0.1,1433;Database=NsbSamplesSql;User Id=sa;Password=Lineoftd1;Max Pool Size=100";
-        var transport = endpointConfiguration.UseTransport<SqlServerTransport>();
-        transport.ConnectionString(connection);
-        transport.DefaultSchema("sender");
-        transport.UseSchemaForQueue("error", "dbo");
-        transport.UseSchemaForQueue("audit", "dbo");
-
-        endpointConfiguration.UsePersistence<InMemoryPersistence>();
-
-        var subscriptions = transport.SubscriptionSettings();
-        subscriptions.SubscriptionTableName(
-            tableName: "Subscriptions", 
-            schemaName: "dbo");
-
-        #endregion
-
-        SqlHelper.CreateSchema(connection, "sender");
+        var endpointConfiguration = new NotificationServiceBusHost().GetEndpointConfiguration();
 
         var endpointInstance = await Endpoint.Start(endpointConfiguration)
             .ConfigureAwait(false);
-        Console.WriteLine("Press enter to send a message");
-        Console.WriteLine("Press any key to exit");
 
-        while (true)
+        Console.WriteLine("Press enter to publish an event; Or any other key to exit...");
+
+        var key = ConsoleKey.Enter;
+        while (key == ConsoleKey.Enter)
         {
-            var key = Console.ReadKey();
+            key = Console.ReadKey().Key;
             Console.WriteLine();
 
-            if (key.Key != ConsoleKey.Enter)
+            var paymentMade = new PaymentMadeEvent
             {
-                break;
-            }
-
-            var submitMessage = new SendSmsNotification
-            {
-                MessageId = Guid.NewGuid(),
-                Value = random.Next(100)
+                PaymentId = random.Next(1,100),
+                Amount = random.Next(1, 1000)
             };
-            await endpointInstance.Publish(submitMessage)
+
+            await endpointInstance.Publish(paymentMade)
                 .ConfigureAwait(false);
-            Console.WriteLine("Published SubmitMessage message");
+
+            Console.WriteLine("Published PaymentMade event");
         }
+
         await endpointInstance.Stop()
             .ConfigureAwait(false);
     }
