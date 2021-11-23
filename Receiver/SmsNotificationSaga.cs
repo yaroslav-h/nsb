@@ -7,7 +7,6 @@ public class SmsNotificationSaga :
     IAmStartedByMessages<PaymentMadeEvent>,
     IHandleMessages<SendNotificationResponse>
 {
-
     protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaData> mapper)
     {
         mapper.ConfigureMapping<PaymentMadeEvent>(msg => msg.PaymentId).ToSaga(saga => saga.PaymentId);

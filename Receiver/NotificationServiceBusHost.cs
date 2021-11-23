@@ -11,11 +11,14 @@ namespace Receiver
             var receiverEndpointName = "ReceiverEndpoint";
             var connectionString = @"Data Source=127.0.0.1,1433;Database=NsbSamplesSql;User Id=sa;Password=Lineoftd1;Max Pool Size=100";
 
+            var defaultSchemaName = "dbo";
+            var auditQueueName = "audit";
+
             SqlHelper.EnsureDatabaseExists(connectionString);
 
             var endpointConfiguration = new EndpointConfiguration(receiverEndpointName);
 
-            endpointConfiguration.AuditProcessedMessagesTo("audit");
+            endpointConfiguration.AuditProcessedMessagesTo(auditQueueName);
 
             var recoverability = endpointConfiguration.Recoverability();
             recoverability.Immediate(
@@ -40,7 +43,7 @@ namespace Receiver
 
             var persistence = endpointConfiguration.UsePersistence<SqlPersistence>();
             var dialect = persistence.SqlDialect<SqlDialect.MsSqlServer>();
-            dialect.Schema("dbo");
+            dialect.Schema(defaultSchemaName);
             persistence.ConnectionBuilder(() => new SqlConnection(connectionString));
             persistence.TablePrefix("");
 
