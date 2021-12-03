@@ -18,6 +18,7 @@ namespace Sender
 
             var transport = endpointConfiguration.UseTransport<SqlServerTransport>();
             transport.ConnectionString(connectionString);
+            transport.Transactions(TransportTransactionMode.SendsAtomicWithReceive);
 
             return endpointConfiguration;
         }

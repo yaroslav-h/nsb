@@ -25,21 +25,24 @@ namespace Receiver
                 immediate =>
                 {
                 //default is 5, immediate retries also can be disabled by setting to 0
-                immediate.NumberOfRetries(0);
+                immediate.NumberOfRetries(2);
                 });
 
             recoverability.Delayed(
                 delayed =>
                 {
                 //delayed retries also can be disabled by setting to 0
-                delayed.NumberOfRetries(0);
-                    delayed.TimeIncrease(TimeSpan.FromMinutes(5));
+                delayed.NumberOfRetries(1);
+                    delayed.TimeIncrease(TimeSpan.FromSeconds(10));
                 });
+
+            recoverability.AddUnrecoverableException<ArgumentException>();
 
             endpointConfiguration.EnableInstallers();
 
             var transport = endpointConfiguration.UseTransport<SqlServerTransport>();
             transport.ConnectionString(connectionString);
+            transport.Transactions(TransportTransactionMode.SendsAtomicWithReceive);
 
             var persistence = endpointConfiguration.UsePersistence<SqlPersistence>();
             var dialect = persistence.SqlDialect<SqlDialect.MsSqlServer>();

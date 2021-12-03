@@ -16,12 +16,13 @@ public class SmsNotificationSaga :
     {
         Data.PaymentId = message.PaymentId;
 
-        //throw new ArgumentException("here we go");
+        //throw new ArgumentException("saga exception");
 
         var messageSubmitted = new SendSms
         {
             PaymentId = message.PaymentId,
-            Amount = message.Amount
+            Amount = message.Amount,
+            DateTime = message.DateTime
         };
 
         await context.SendLocal(messageSubmitted);
@@ -29,7 +30,7 @@ public class SmsNotificationSaga :
 
     public async Task Handle(SendNotificationResponse message, IMessageHandlerContext context)
     {
-        Console.WriteLine($"Payment notification with PaymentId: {message.PaymentId} accepted.");
+        Console.WriteLine($"Writing logs for PaymentId: {Data.PaymentId} accepted.");
     }
 
     public class SagaData :

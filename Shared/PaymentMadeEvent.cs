@@ -1,4 +1,5 @@
 ﻿using NServiceBus;
+using System;
 
 public class PaymentMadeEvent :
     IEvent
@@ -6,4 +7,6 @@ public class PaymentMadeEvent :
     public int PaymentId { get; set; }
 
     public int Amount { get; set; }
+
+    public DateTime DateTime { get; set; }
 }

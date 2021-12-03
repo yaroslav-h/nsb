@@ -26,8 +26,9 @@ public static class Program
 
             var paymentMade = new PaymentMadeEvent
             {
-                PaymentId = random.Next(1,100),
-                Amount = random.Next(1, 1000)
+                PaymentId = random.Next(1, 100),
+                Amount = random.Next(1, 1000),
+                DateTime = DateTime.Now
             };
 
             await endpointInstance.Publish(paymentMade)
